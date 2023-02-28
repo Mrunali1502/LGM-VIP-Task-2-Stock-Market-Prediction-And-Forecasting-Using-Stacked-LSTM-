@@ -1,0 +1,375 @@
+Task 2 : Stock Market Prediction And Forecasting Using Stacked LSTM
+By Mrunali Bhor
+
+[ ]
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+import pandas as pd
+[ ]
+from google.colab import files
+uploaded = files.upload()
+
+[ ]
+data_set = pd.read_csv('NSE-TATAGLOBAL(2).CSV')
+data_set
+
+[ ]
+data_set
+
+[ ]
+data_set.describe()
+
+[ ]
+data_set.tail()
+
+
+[ ]
+data_set.dtypes
+
+Date                     object
+Open                    float64
+High                    float64
+Low                     float64
+Last                    float64
+Close                   float64
+Total Trade Quantity      int64
+Turnover (Lacs)         float64
+dtype: object
+[ ]
+data_set['Date'].value_counts()
+
+28-09-2018    1
+10-04-2013    1
+20-03-2013    1
+21-03-2013    1
+22-03-2013    1
+             ..
+11-01-2016    1
+12-01-2016    1
+13-01-2016    1
+14-01-2016    1
+21-07-2010    1
+Name: Date, Length: 2035, dtype: int64
+[ ]
+data_set['High'].hist()
+
+
+[ ]
+plt.figure(figsize=(20,8))
+data_set.plot()
+
+[ ]
+data=data_set.filter(['Close'])
+dataset = data_set.values
+training_data_len=math.ceil(len(data_set)*8)
+training_data_len
+16280
+[ ]
+dataset
+array([['28-09-2018', 234.05, 235.95, ..., 233.75, 3069914, 7162.35],
+       ['27-09-2018', 234.55, 236.8, ..., 233.25, 5082859, 11859.95],
+       ['26-09-2018', 240.0, 240.0, ..., 234.25, 2240909, 5248.6],
+       ...,
+       ['23-07-2010', 121.8, 121.95, ..., 120.65, 281312, 340.31],
+       ['22-07-2010', 120.3, 122.0, ..., 120.9, 293312, 355.17],
+       ['21-07-2010', 122.1, 123.0, ..., 121.55, 658666, 803.56]],
+      dtype=object)
+[ ]
+data_set= data_set.iloc[:, 0:5]
+data_set
+
+[ ]
+training_set = data_set.iloc[:,1:2].values
+training_set
+array([[234.05],
+       [234.55],
+       [240.  ],
+       ...,
+       [121.8 ],
+       [120.3 ],
+       [122.1 ]])
+[ ]
+# SCALLING OF DATA_SET
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler(feature_range = (0, 1))
+
+data_training_scaled = scaler.fit_transform(training_set)
+[ ]
+features_set = []
+labels = []
+for i in range(60, 586):
+    features_set.append(data_training_scaled[i-60:i, 0])
+    labels.append(data_training_scaled[i, 0])
+[ ]
+features_set, labels = np.array(features_set), np.array(labels)
+
+[ ]
+features_set = np.reshape(features_set, (features_set.shape[0], features_set.shape[1], 1))
+features_set.shape
+(526, 60, 1)
+BUILDING THE LSTM
+[ ]
+
+
+import tensorflow as tf
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.layers import LSTM
+[ ]
+model = Sequential()
+[ ]
+model.compile(optimizer = 'adam', loss = 'mean_squared_error')
+[ ]
+model.fit(features_set, labels, epochs = 50, batch_size = 20)
+Epoch 1/50
+27/27 [==============================] - 0s 978us/step - loss: 0.0118
+Epoch 2/50
+27/27 [==============================] - 0s 845us/step - loss: 0.0118
+Epoch 3/50
+27/27 [==============================] - 0s 902us/step - loss: 0.0118
+Epoch 4/50
+27/27 [==============================] - 0s 889us/step - loss: 0.0118
+Epoch 5/50
+27/27 [==============================] - 0s 908us/step - loss: 0.0118
+Epoch 6/50
+27/27 [==============================] - 0s 804us/step - loss: 0.0118
+Epoch 7/50
+27/27 [==============================] - 0s 891us/step - loss: 0.0118
+Epoch 8/50
+27/27 [==============================] - 0s 928us/step - loss: 0.0118
+Epoch 9/50
+27/27 [==============================] - 0s 830us/step - loss: 0.0118
+Epoch 10/50
+27/27 [==============================] - 0s 789us/step - loss: 0.0118
+Epoch 11/50
+27/27 [==============================] - 0s 887us/step - loss: 0.0118
+Epoch 12/50
+27/27 [==============================] - 0s 878us/step - loss: 0.0118
+Epoch 13/50
+27/27 [==============================] - 0s 810us/step - loss: 0.0118
+Epoch 14/50
+27/27 [==============================] - 0s 859us/step - loss: 0.0118
+Epoch 15/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 16/50
+27/27 [==============================] - 0s 946us/step - loss: 0.0118
+Epoch 17/50
+27/27 [==============================] - 0s 834us/step - loss: 0.0118
+Epoch 18/50
+27/27 [==============================] - 0s 914us/step - loss: 0.0118
+Epoch 19/50
+27/27 [==============================] - 0s 866us/step - loss: 0.0118
+Epoch 20/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 21/50
+27/27 [==============================] - 0s 846us/step - loss: 0.0118
+Epoch 22/50
+27/27 [==============================] - 0s 856us/step - loss: 0.0118
+Epoch 23/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 24/50
+27/27 [==============================] - 0s 886us/step - loss: 0.0118
+Epoch 25/50
+27/27 [==============================] - 0s 952us/step - loss: 0.0118
+Epoch 26/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 27/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 28/50
+27/27 [==============================] - 0s 930us/step - loss: 0.0118
+Epoch 29/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 30/50
+27/27 [==============================] - 0s 809us/step - loss: 0.0118
+Epoch 31/50
+27/27 [==============================] - 0s 907us/step - loss: 0.0118
+Epoch 32/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 33/50
+27/27 [==============================] - 0s 782us/step - loss: 0.0118
+Epoch 34/50
+27/27 [==============================] - 0s 1ms/step - loss: 0.0118
+Epoch 35/50
+27/27 [==============================] - 0s 892us/step - loss: 0.0118
+Epoch 36/50
+27/27 [==============================] - 0s 775us/step - loss: 0.0118
+Epoch 37/50
+27/27 [==============================] - 0s 749us/step - loss: 0.0118
+Epoch 38/50
+27/27 [==============================] - 0s 804us/step - loss: 0.0118
+Epoch 39/50
+27/27 [==============================] - 0s 854us/step - loss: 0.0118
+Epoch 40/50
+27/27 [==============================] - 0s 838us/step - loss: 0.0118
+Epoch 41/50
+27/27 [==============================] - 0s 897us/step - loss: 0.0118
+Epoch 42/50
+27/27 [==============================] - 0s 930us/step - loss: 0.0118
+Epoch 43/50
+27/27 [==============================] - 0s 837us/step - loss: 0.0118
+Epoch 44/50
+27/27 [==============================] - 0s 947us/step - loss: 0.0118
+Epoch 45/50
+27/27 [==============================] - 0s 881us/step - loss: 0.0118
+Epoch 46/50
+27/27 [==============================] - 0s 934us/step - loss: 0.0118
+Epoch 47/50
+27/27 [==============================] - 0s 909us/step - loss: 0.0118
+Epoch 48/50
+27/27 [==============================] - 0s 793us/step - loss: 0.0118
+Epoch 49/50
+27/27 [==============================] - 0s 865us/step - loss: 0.0118
+Epoch 50/50
+27/27 [==============================] - 0s 757us/step - loss: 0.0118
+<tensorflow.python.keras.callbacks.History at 0x7f7874cf32e0>
+[ ]
+data_testing_complete = pd.read_csv('NSE-TATAGLOBAL(2).CSV')
+data_testing_processed = data_testing_complete.iloc[:, 1:2]
+data_testing_processed
+
+[ ]
+data_total = pd.concat((data_set['Open'], data_set['Open']), axis=0)
+
+[ ]
+test_inputs = data_total[len(data_total) - len(data_set) - 60:].values
+test_inputs.shape
+(2095,)
+[ ]
+test_inputs = test_inputs.reshape(-1,1)
+test_inputs = scaler.transform(test_inputs)
+
+[ ]
+test_features = []
+for i in range(60, 89):
+    test_features.append(test_inputs[i-60:i, 0])
+[ ]
+test_features = np.array(test_features)
+test_features = np.reshape(test_features, (test_features.shape[0], test_features.shape[1], 1))
+test_features.shape
+
+(29, 60, 1)
+[ ]
+predictions = model.predict(test_features)
+
+[ ]
+predictions
+array([[[0.20600162],
+        [0.21654502],
+        [0.21654502],
+        ...,
+        [0.1650446 ],
+        [0.15896188],
+        [0.16626115]],
+
+       [[0.21654502],
+        [0.21654502],
+        [0.2175588 ],
+        ...,
+        [0.15896188],
+        [0.16626115],
+        [0.6202352 ]],
+
+       [[0.21654502],
+        [0.2175588 ],
+        [0.19870235],
+        ...,
+        [0.16626115],
+        [0.6202352 ],
+        [0.6222628 ]],
+
+       ...,
+
+       [[0.17092457],
+        [0.16788322],
+        [0.17477697],
+        ...,
+        [0.62206   ],
+        [0.6455799 ],
+        [0.67234385]],
+
+       [[0.16788322],
+        [0.17477697],
+        [0.16443634],
+        ...,
+        [0.6455799 ],
+        [0.67234385],
+        [0.6605839 ]],
+
+       [[0.17477697],
+        [0.16443634],
+        [0.14557989],
+        ...,
+        [0.67234385],
+        [0.6605839 ],
+        [0.64760745]]], dtype=float32)
+[ ]
+x_train = data_set[0:1256]
+y_train = data_set[1:1257]
+print(x_train.shape)
+print(y_train.shape)
+(1256, 5)
+(1256, 5)
+[ ]
+x_train
+
+
+[ ]
+
+# THE THE NP.RANDOM.RANDN FUNCTION
+np.random.seed(1)
+np.random.randn(3, 3)
+array([[ 1.62434536, -0.61175641, -0.52817175],
+       [-1.07296862,  0.86540763, -2.3015387 ],
+       [ 1.74481176, -0.7612069 ,  0.3190391 ]])
+[ ]
+np.random.normal(1)
+0.7506296245225899
+[ ]
+np.random.normal(5)
+
+6.4621079370449745
+[ ]
+np.random.seed(42)
+np.random.normal(size = 1000, scale = 100).std()
+97.87262077473541
+[ ]
+plt.figure(figsize=(18,6))
+plt.title("stock market price predic")
+plt.plot(data_testing_complete['Close'])
+plt.xlabel('Date',fontsize=18)
+plt.ylabel('Total Trade Quantity',fontsize=18)
+plt.show()
+
+[ ]
+#Analyze the closing prices from dataframe:
+data_set['Date']=pd.to_datetime(data_set.Date)
+data_set.index=data_set['Date']
+#data_set.head()
+plt.figure(figsize=(20,10))
+plt.plot(data_set['High'],label='ClosePriceHist')
+[ ]
+plt.figure(figsize=(12,6))
+plt.plot(data_set['Date'])
+plt.xlabel('Turnover (Lacs)',fontsize=18)
+plt.ylabel('Total Trade Quantity',fontsize=18)
+plt.show()
+
+[ ]
+#Analyze the closing prices from dataframe:
+data_set["Turnover (Lacs)"]=pd.to_datetime(data_set.Date)
+data_set.index=data_set['Turnover (Lacs)']
+#data_set.head()
+
+plt.figure(figsize=(20,10))
+plt.plot(data_set["Turnover (Lacs)"],label='ClosePriceHist')
+[ ]
+#Analyze the closing prices from dataframe:
+data_set["Turnover (Lacs)"]=pd.to_datetime(data_set.Date)
+data_set.index=data_set['Turnover (Lacs)']
+#data_set.head()
+
+plt.figure(figsize=(20,10))
+plt.plot(data_set["Turnover (Lacs)"],label='ClosePriceHist')
+
